@@ -25,6 +25,18 @@ def filter_by_age(min_age):
         return []
 
 
+def filter_by_email(search_email):
+    try:
+        with open("users.json", "r") as file:
+            users = json.load(file)
+
+        # Logik: Nimm den User, wenn die gesuchte E-Mail in seiner Adresse vorkommt
+        filtered = [u for u in users if search_email.lower() in u.get("email", "").lower()]
+
+        return filtered
+    except FileNotFoundError:
+        return "Datei nicht gefunden."
+
 
 if __name__ == "__main__":
     filter_option = input("What would you like to filter by? (Currently, only 'name' is supported): ").strip().lower()
