@@ -11,6 +11,21 @@ def filter_users_by_name(name):
         print(user)
 
 
+def filter_by_age(min_age):
+    try:
+        with open("users.json", "r") as file:
+            users = json.load(file)
+
+        # Logik: Nimm den User, wenn sein Alter >= min_age ist
+        filtered = [u for u in users if u.get("age", 0) >= min_age]
+
+        return filtered
+    except FileNotFoundError:
+        print("Datei nicht gefunden!")
+        return []
+
+
+
 if __name__ == "__main__":
     filter_option = input("What would you like to filter by? (Currently, only 'name' is supported): ").strip().lower()
 
