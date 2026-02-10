@@ -1,48 +1,55 @@
 import json
 
 
-def filter_users_by_name(name):
-    with open("users.json", "r") as file:
-        users = json.load(file)
-
-    filtered_users = [user for user in users if user["name"].lower() == name.lower()]
-
-    for user in filtered_users:
-        print(user)
-
-
-def filter_by_age(min_age):
+def load_users(file_path="users.json"):
+    """
+    Lädt Benutzerinformationen aus einer JSON-Datei mit UTF-8 Kodierung.
+    """
     try:
-        with open("users.json", "r") as file:
-            users = json.load(file)
-
-        # Logik: Nimm den User, wenn sein Alter >= min_age ist
-        filtered = [u for u in users if u.get("age", 0) >= min_age]
-
-        return filtered
+        with open(file_path, "r", encoding="utf-8") as file:  # UTF-8 für Kompatibilität
+            return json.load(file)
     except FileNotFoundError:
         print("Datei nicht gefunden!")
         return []
 
 
-def filter_by_email(search_email):
-    try:
-        with open("users.json", "r") as file:
-            users = json.load(file)
+def filter_by_age(users, target_age):
+    """
+    Sucht Benutzer mit einem exakten Alter.
+    """
+    # Geändert von >= auf == für exakte Treffer
+    return [u for u in users if u.get("age") == target_age]
 
-        # Logik: Nimm den User, wenn die gesuchte E-Mail in seiner Adresse vorkommt
-        filtered = [u for u in users if search_email.lower() in u.get("email", "").lower()]
 
-        return filtered
-    except FileNotFoundError:
-        return "Datei nicht gefunden."
+def filter_users_by_name(users, name):
+    """Filtert Benutzer nach Namen (Groß-/Kleinschreibung ignoriert)."""
+    return [u for u in users if u["name"].lower() == name.lower()]
+
+
+def filter_by_email(users, search_email):
+    """Sucht Benutzer basierend auf der E-Mail-Adresse."""
+    return [u for u in users if search_email.lower() in u.get("email", "").lower()]
 
 
 if __name__ == "__main__":
-    filter_option = input("What would you like to filter by? (Currently, only 'name' is supported): ").strip().lower()
+    users_data = load_users()  # Modularer Aufruf
 
-    if filter_option == "name":
-        name_to_search = input("Enter a name to filter users: ").strip()
-        filter_users_by_name(name_to_search)
-    else:
-        print("Filtering by that option is not yet supported.")
+    option = input("Filter wählen (name, age, email): ").strip().lower()
+
+    results = []
+    if option == "age":
+        try:
+            age_input = int(input("Exaktes Alter eingeben: "))
+            results = filter_by_age(users_data, age_input)
+        except ValueError:
+            print("Bitte eine Zahl eingeben.")
+    elif option == "name":
+        name_input = input("Name: ")
+        results = filter_users_by_name(users_data, name_input)
+    elif option == "email":
+        email_input = input("E-Mail: ")
+        results = filter_by_email(users_data, email_input)
+
+    print(f"\n{len(results)} Treffer gefunden:")
+    for user in results:
+        print(user)
